@@ -1,4 +1,5 @@
-const int MAX_MARHCING_STEPS = 255;
+const vec3 REPEAT = vec3(3.0, 3.0, 3.0);
+const int MAX_MARHCING_STEPS = 256;
 const float MIN_DIST = 0.0;
 const float MAX_DIST = 100.0;
 const float EPSILON = 0.00001;
@@ -15,7 +16,20 @@ float sphereSDF(vec3 p) {
     return length(p) - r;
 }
 
+float boxSDF(vec3 p) {
+    return 0.0;
+}
+
 float sceneSDF(vec3 p) {
+    if (REPEAT.x > 0.0) {
+        p.x = mod(p.x, REPEAT.x) - REPEAT.x * 0.5;
+    }
+    if (REPEAT.y > 0.0) {
+        p.y = mod(p.y, REPEAT.y) - REPEAT.y * 0.5;
+    }
+    if (REPEAT.z > 0.0) {
+        p.z = mod(p.z, REPEAT.z) - REPEAT.z * 0.5;
+    }
     return sphereSDF(p);
 }
 
@@ -53,7 +67,8 @@ vec3 sceneNormal(vec3 p) {
 }
 
 void main() {
-    camera.pos = vec3(0.0, 0.0, 4.0);
+    camera.pos = vec3(0.0, 0.0, 20.0);
+    camera.dir = vec3(0.0, 0.0, 1.0);
     camera.fov = 90.0;
 
     vec3 dir = rayDirFromCamera(iResolution.xy, gl_FragCoord.xy);
@@ -65,5 +80,5 @@ void main() {
         return;
     }
 
-    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0) * dot(vec3(0.0,0.0,1.0), norm);
+    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0) * dot(camera.dir, norm);
 }
